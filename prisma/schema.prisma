@@ -1,0 +1,911 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x", "rhel-openssl-3.0.x", "linux-arm64-openssl-1.0.x", "rhel-openssl-1.0.x"]
+}
+
+enum role_company_media_type {
+  LOGO
+  COVER
+  AVATAR
+  VIDEO
+}
+
+enum role_company_type {
+  VENDOR
+  CORP
+}
+
+enum subscription_status {
+  ACTIVE
+  PAUSED
+  SKIP
+  CANCELLED
+  DRAFT
+  COMPLETED
+  PAYMENT_FAILURE
+}
+
+enum contract_status {
+  NO_ACTION
+  UPDATE
+}
+
+enum product_selection {
+  FIXED
+  DYNAMIC
+}
+
+enum pricing_type {
+  FIXED
+  DYNAMIC
+}
+
+enum plan_type {
+  BUILD_A_BOX
+  BUNDLE
+  TRIAL
+  START_REFILL
+  STANDARD
+}
+
+enum duration_type {
+  DAY
+  WEEK
+  MONTH
+  YEAR
+}
+
+enum address_type {
+  DELIVERY
+  BILLING
+  COMPANY
+}
+
+enum cart_type {
+  MAIN
+  RENEWAL
+}
+
+enum coupon_duration_type {
+  ONCE
+  FOREVER
+  REPEATING
+}
+
+enum invoice_item_type {
+  SUBSCRIPTION
+  DELIVERY
+  DISCOUNT
+}
+
+enum order_line_type {
+  SUBSCRIPTION
+  PRODUCT
+  DELIVERY
+  DISCOUNT
+}
+
+enum plan_status {
+  DRAFT
+  ACTIVE
+  INACTIVE
+}
+
+enum payout_status {
+  PENDING
+  PROCESSED
+  ERROR
+}
+
+enum order_status {
+  PENDING
+  SCHEDULE
+  FULFILLED
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum recurring_type {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+}
+
+enum purchase_type {
+  RECURRING
+  ONCE_OFF
+}
+
+model address {
+  id                 BigInt         @id @default(autoincrement())
+  user_id            BigInt
+  first_name         String?        @db.VarChar(255)
+  last_name          String?        @db.VarChar(255)
+  phone_country_code String?        @default("+353") @db.VarChar(10)
+  phone_number       String?        @db.VarChar(15)
+  address_line_1     String?
+  address_line_2     String?
+  state              String?        @db.VarChar(255)
+  county             String?        @db.VarChar(255)
+  city               String?        @db.VarChar(255)
+  postal_code        String?        @db.VarChar(15)
+  country            String         @default("IRL") @db.VarChar(10)
+  is_default         Boolean        @default(false)
+  type               address_type?
+  extra              Json?          @db.Json
+  deleted            Boolean        @default(false)
+  actor              BigInt?
+  users              user           @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "billing_addresses_ibfk_1")
+  invoice            invoice[]
+  order              order[]
+  subscription       subscription[]
+
+  @@index([user_id], map: "billing_addresses_user_id_foreign")
+}
+
+model address_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model availability {
+  company_id BigInt
+  user_id    BigInt
+  company    company @relation(fields: [company_id], references: [id])
+  user       user    @relation(fields: [user_id], references: [id])
+
+  @@id([company_id, user_id])
+  @@index([user_id], map: "availability_user_id_foreign")
+}
+
+model payment_method {
+  id                BigInt   @id @default(autoincrement())
+  user_id           BigInt
+  payment_type      String?  @db.VarChar(255)
+  card_brand        String?  @db.VarChar(255)
+  card_last_four    String?  @db.VarChar(4)
+  exp_month         Int?     @db.SmallInt
+  exp_year          Int?     @db.SmallInt
+  payment_method_id BigInt?
+  is_default        Boolean  @default(true)
+  extra             Json?    @db.Json
+  deleted           Boolean  @default(false)
+  actor             BigInt?
+  payout            payout[]
+
+  @@index([user_id], map: "payment_methods_user_id_foreign")
+}
+
+model payment_method_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model company {
+  id                    BigInt             @id @default(autoincrement()) @db.BigInt
+  name                  String             @db.VarChar(255)
+  country               String?            @db.VarChar(10)
+  phone_country_code    String?            @db.VarChar(10)
+  phone_number          String?            @db.VarChar(12)
+  about_us              String?            @db.VarChar(255)
+  currency              String?            @db.VarChar(10)
+  vat                   String?            @db.VarChar(255)
+  vat_percent           String?            @db.VarChar(255)
+  taly_percent          Float?
+  order_email           String?            @db.VarChar(255)
+  type                  role_company_type? @default(VENDOR)
+  foreign_ids           Json?              @db.Json
+  sync_settings         Json?              @db.Json
+  headquarter_country   String?            @db.VarChar(255)
+  website               String?            @db.VarChar(255)
+  industries            String?            @db.VarChar(255)
+  sell_type             String?            @db.VarChar(255)
+  slug                  String?            @unique @db.VarChar(255)
+  ecommerce_description String?            @db.VarChar(255)
+  theme                 Json?              @db.Json
+  onboarding            Json?              @db.Json
+  published             Boolean            @default(false)
+  extra                 Json?              @db.Json
+  deleted               Boolean            @default(false)
+  actor                 BigInt?
+  payout                payout[]
+  shipping_zone         shipping_zone[]
+  company_media         company_media[]
+  availability          availability[]
+  invoice_item          invoice_item[]
+  order                 order[]
+  plans                 plan[]
+  coupon                coupon[]
+}
+
+model company_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model company_media {
+  id         BigInt                   @id @default(autoincrement())
+  media      String                   @db.VarChar(255)
+  type       role_company_media_type?
+  extra      Json?                    @db.Json
+  deleted    Boolean                  @default(false)
+  actor      BigInt?
+  company_id BigInt
+  company    company                  @relation(fields: [company_id], references: [id])
+}
+
+model shipping_zone {
+  id                     BigInt                @id @default(autoincrement())
+  country                String                @db.VarChar(10)
+  whole_country_delivery Boolean               @default(true)
+  company_id             BigInt
+  free_delivery          Boolean               @default(false)
+  extra                  Json?                 @db.Json
+  deleted                Boolean               @default(false)
+  actor                  BigInt?
+  company                company               @relation(fields: [company_id], references: [id])
+  shipping_zone_price    shipping_zone_price[]
+  shipping_zone_rule     shipping_zone_rule[]
+}
+
+model shipping_zone_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model shipping_zone_price {
+  id                    BigInt              @id @default(autoincrement())
+  shipping_zone_id      BigInt?
+  shipping_zone_rule_id BigInt?
+  currency              String              @db.VarChar(10)
+  amount                String              @db.VarChar(255)
+  delivery_threshold    Float?              @default(0)
+  extra                 Json?               @db.Json
+  deleted               Boolean             @default(false)
+  actor                 BigInt?
+  shipping_zone         shipping_zone?      @relation(fields: [shipping_zone_id], references: [id])
+  shipping_zone_rule    shipping_zone_rule? @relation(fields: [shipping_zone_rule_id], references: [id])
+}
+
+model shipping_zone_price_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model shipping_zone_rule {
+  id                  BigInt                @id @default(autoincrement())
+  shipping_zone_id    BigInt
+  schema_version      String                @db.VarChar(25)
+  is_delivery_related Boolean               @default(true)
+  rule                Json?                 @db.Json
+  extra               Json?                 @db.Json
+  deleted             Boolean               @default(false)
+  actor               BigInt?
+  shipping_zone       shipping_zone         @relation(fields: [shipping_zone_id], references: [id])
+  shipping_zone_price shipping_zone_price[]
+}
+
+model shipping_zone_rule_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model user {
+  id                 BigInt         @id @default(autoincrement())
+  first_name         String         @db.VarChar(255)
+  last_name          String         @default("") @db.VarChar(255)
+  email              String         @unique(map: "users_email_unique") @db.VarChar(255)
+  email_verified_at  DateTime?      @db.Timestamp(0)
+  phone_country_code String         @default("+353") @db.VarChar(10)
+  phone_number       String?        @db.VarChar(15)
+  gender             String?        @db.VarChar(31)
+  birthday           DateTime?      @db.Date
+  phone_verified_at  DateTime?      @db.Timestamp(0)
+  employer_id        BigInt?
+  job_role           String?        @db.VarChar(255)
+  policy_agreement   Boolean        @default(false)
+  marketing_consent  Boolean        @default(true)
+  foreign_ids        Json?          @db.Json
+  media_profile      String?
+  extra              Json?          @db.Json
+  deleted            Boolean        @default(false)
+  actor              BigInt?
+  address            address[]
+  invoice            invoice[]
+  orders             order[]
+  subscriptions      subscription[]
+  availability       availability[]
+  cart               cart[]
+  trial              trial[]
+
+  @@index([employer_id], map: "users_employer_id_foreign")
+}
+
+model user_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model invoice {
+  id             BigInt         @id @default(autoincrement())
+  user_id        BigInt
+  status         String         @db.VarChar(255)
+  payment_intent String
+  total_amount   Float
+  currency       String         @db.VarChar(10)
+  address_id     BigInt
+  foreign_ids    Json?          @db.Json
+  extra          Json?          @db.Json
+  deleted        Boolean        @default(false)
+  actor          BigInt?
+  user           user           @relation(fields: [user_id], references: [id])
+  address        address        @relation(fields: [address_id], references: [id])
+  invoice_items  invoice_item[]
+}
+
+model invoice_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model invoice_item {
+  id              BigInt            @id @default(autoincrement())
+  invoice_id      BigInt
+  description     String            @db.VarChar(255)
+  quantity        Int
+  price           Float
+  subscription_id BigInt?
+  company_id      BigInt?
+  type            invoice_item_type @default(SUBSCRIPTION)
+  extra           Json?             @db.Json
+  deleted         Boolean           @default(false)
+  actor           BigInt?
+  invoice         invoice           @relation(fields: [invoice_id], references: [id])
+  subscription    subscription?     @relation(fields: [subscription_id], references: [id])
+  company         company?          @relation(fields: [company_id], references: [id])
+}
+
+model invoice_item_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model payout {
+  id                BigInt          @id() @default(autoincrement())
+  company_id        BigInt
+  order_id          BigInt
+  amount            Float
+  currency          String          @db.VarChar(10)
+  status            payout_status   @default(PENDING)
+  scheduled_date    DateTime
+  payment_method_id BigInt?
+  extra             Json?           @db.Json
+  deleted           Boolean         @default(false)
+  actor             BigInt?
+  payment_method    payment_method? @relation(fields: [payment_method_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  company           company         @relation(fields: [company_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  order             order           @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([company_id], map: "payouts_order_id_foreign")
+  @@index([company_id], map: "payouts_company_id_foreign")
+  @@index([payment_method_id], map: "payouts_payment_method_id_foreign")
+}
+
+model payout_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model product {
+  id               BigInt            @id(map: "products_pkey") @default(autoincrement())
+  company_id       BigInt
+  name             String            @db.VarChar
+  description      String?           @db.VarChar
+  brand            String?           @db.VarChar
+  product_media_id BigInt?
+  unit             String?           @db.VarChar
+  unit_plural      String?           @db.VarChar
+  breakdown        String?           @db.VarChar
+  foreign_ids      Json?             @db.Json
+  extra            Json?             @db.Json
+  deleted          Boolean           @default(false)
+  actor            BigInt?
+  media            product_media[]
+  product_variant  product_variant[]
+
+  @@index([id, company_id], map: "product_id_idx")
+}
+
+model product_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model product_media {
+  id                 BigInt           @id(map: "product_medias_pkey") @default(autoincrement())
+  product_id         BigInt?
+  product_variant_id BigInt?
+  media              Json             @db.Json
+  foreign_ids        Json?            @db.Json
+  extra              Json?            @db.Json
+  deleted            Boolean          @default(false)
+  actor              BigInt?
+  product            product?         @relation(fields: [product_id], references: [id])
+  product_variant    product_variant? @relation(fields: [product_variant_id], references: [id])
+
+  @@index([product_id], map: "product_media_product_id_index")
+}
+
+model product_variant {
+  id                    BigInt                  @id(map: "product_variants_pkey") @default(autoincrement())
+  product_id            BigInt
+  name                  String                  @db.VarChar
+  description           String?                 @db.VarChar
+  description_long      String?
+  sku                   String?                 @db.VarChar
+  volume_or_weight      String?                 @db.VarChar
+  nutritional_facts     String?                 @db.VarChar
+  ingredients           String?                 @db.VarChar
+  allergens             String?                 @db.VarChar
+  age_restricted        Boolean                 @default(false)
+  age                   Int?                    @db.SmallInt
+  in_stock              Boolean                 @default(true)
+  foreign_ids           Json?                   @db.Json
+  extra                 Json?                   @db.Json
+  deleted               Boolean                 @default(false)
+  actor                 BigInt?
+  order_line            order_line[]
+  plans                 plan_product_variant[]
+  product               product                 @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_variant_product_fk")
+  product_variant_price product_variant_price[]
+  media                 product_media[]
+
+  @@index([product_id], map: "product_variant_product_id_index")
+}
+
+model product_variant_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model product_variant_price {
+  id                 BigInt          @id(map: "product_variant_prices_pkey") @default(autoincrement())
+  product_variant_id BigInt
+  country            String          @db.VarChar(10)
+  currency           String          @db.VarChar(10)
+  amount             Float           @default(0)
+  foreign_ids        Json?           @db.Json
+  extra              Json?           @db.Json
+  deleted            Boolean         @default(false)
+  actor              BigInt?
+  product_variant    product_variant @relation(fields: [product_variant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_variant_price_fk")
+
+  @@index([product_variant_id], map: "product_price_product_id_index")
+}
+
+model product_variant_price_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model plan {
+  id                         BigInt                 @id @default(autoincrement())
+  company_id                 BigInt
+  company                    company                @relation(fields: [company_id], references: [id])
+  foreign_ids                Json?                  @db.Json
+  title                      String                 @db.VarChar(255)
+  slug                       String                 @unique @default("")
+  description                String?
+  delivery_details           String?
+  terms                      String?
+  allow_delivery_preference  Boolean                @default(false)
+  price_at_origin            Float?
+  currency_at_origin         String?                @db.VarChar(10)
+  media_cover                Json?
+  recurring                  Json?
+  duration_value             Int?
+  duration_type              duration_type?
+  age_restricted             Boolean                @default(false)
+  voucher                    Boolean                @default(false)
+  product_selection          product_selection      @default(FIXED)
+  pricing_type               pricing_type           @default(FIXED)
+  plan_type                  plan_type              @default(STANDARD)
+  category_id                BigInt?
+  recurrent_discount_percent Float                  @default(0)
+  allow_once_payment         Boolean                @default(false)
+  status                     plan_status            @default(DRAFT)
+  tag                        Json?                  @db.Json()
+  user_sales_limit           Int?
+  total_sales_limit          Int?
+  total_sales                Int                    @default(0)
+  sold_out                   Boolean                @default(false)
+  created_at                 DateTime               @default(now())
+  extra                      Json?                  @db.Json
+  deleted                    Boolean                @default(false)
+  actor                      BigInt?
+  category                   plan_category?         @relation(fields: [category_id], references: [id])
+  plan_features              plan_feature[]
+  plan_media                 plan_media[]
+  plan_price                 plan_price[]
+  products                   plan_product_variant[]
+  subscriptions              subscription[]
+  trial                      trial[]
+}
+
+model plan_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model plan_media {
+  id          BigInt @id @default(autoincrement())
+  plan_id     BigInt
+  media       String
+  foreign_ids Json?  @db.Json
+  extra       Json?  @db.Json
+  plan        plan   @relation(fields: [plan_id], references: [id], onUpdate: NoAction, map: "plan_media_plan_id_foreign")
+
+  @@index([plan_id], map: "i_plan_media_plan_id_foreign")
+}
+
+model plan_category {
+  id    BigInt @id @default(autoincrement())
+  name  String @db.VarChar(255)
+  slug  String @unique
+  icon  String
+  plans plan[]
+  extra Json?  @db.Json
+}
+
+model plan_product_variant {
+  id                                    BigInt                              @id @default(autoincrement())
+  plan_id                               BigInt
+  product_variant_id                    BigInt
+  quantity                              Int                                 @default(1)
+  foreign_ids                           Json?                               @db.Json
+  extra                                 Json?                               @db.Json
+  deleted                               Boolean                             @default(false)
+  actor                                 BigInt?
+  plan                                  plan                                @relation(fields: [plan_id], references: [id], onUpdate: NoAction, map: "plan_product_id_foreign")
+  product_variant                       product_variant                     @relation(fields: [product_variant_id], references: [id], onUpdate: NoAction, map: "product_product_variant_id_foreign")
+  plan_product_variant_price            plan_product_variant_price[]
+  subscriptions_plans_products_variants subscription_plan_product_variant[]
+}
+
+model plan_product_variant_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model plan_feature {
+  id      BigInt  @id @default(autoincrement())
+  plan_id BigInt
+  feature Json    @db.Json
+  extra   Json?   @db.Json
+  deleted Boolean @default(false)
+  actor   BigInt?
+  plan    plan    @relation(fields: [plan_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "plan_id_foreign")
+}
+
+model plan_feature_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model plan_price {
+  id       BigInt  @id @default(autoincrement())
+  plan_id  BigInt
+  country  String  @db.VarChar(10)
+  currency String  @db.VarChar(10)
+  amount   Float   @default(0)
+  extra    Json?   @db.Json
+  deleted  Boolean @default(false)
+  actor    BigInt?
+  plan     plan    @relation(fields: [plan_id], references: [id], onUpdate: NoAction, map: "plan_price_plan_id_foreign")
+}
+
+model plan_price_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model plan_product_variant_price {
+  id                      BigInt               @id @default(autoincrement())
+  plan_product_variant_id BigInt
+  country                 String               @db.VarChar(10)
+  currency                String               @db.VarChar(10)
+  amount                  Float                @default(0)
+  foreign_ids             Json?                @db.Json
+  extra                   Json?                @db.Json
+  deleted                 Boolean              @default(false)
+  actor                   BigInt?
+  plan_product_variant    plan_product_variant @relation(fields: [plan_product_variant_id], references: [id], onUpdate: NoAction, onDelete: Cascade, map: "plan_product_variant_price_id_foreign")
+}
+
+model plan_product_variant_price_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model subscription {
+  id                                    BigInt                              @id @default(autoincrement())
+  created_at                            DateTime                            @default(now())
+  user_id                               BigInt?
+  plan_id                               BigInt
+  status                                subscription_status                 @default(DRAFT)
+  delivery_day                          String?                             @db.VarChar(10)
+  recurring                             recurring_type?
+  renew_at                              DateTime?
+  cancelled_at                          DateTime?
+  step                                  Int                                 @default(1)
+  contract_amount                       Float?
+  contract_currency                     String?
+  contract_country                      String?
+  contract_status                       contract_status                     @default(NO_ACTION)
+  contract_update_requested_at          DateTime?
+  contract_update_amount                Float?
+  address_id                            BigInt?
+  payment_retry                         Int                                 @default(0)
+  coupon_id                             Int?
+  purchase_type                         purchase_type                       @default(RECURRING)
+  foreign_ids                           Json?                               @db.Json
+  extra                                 Json?                               @db.Json
+  deleted                               Boolean                             @default(false)
+  actor                                 BigInt?
+  order_subscription                    order_subscription[]
+  plan                                  plan                                @relation(fields: [plan_id], references: [id], onUpdate: NoAction, map: "plan_product_id_foreign")
+  user                                  user?                               @relation(fields: [user_id], references: [id])
+  subscriptions_plans_products_variants subscription_plan_product_variant[]
+  cart_line                             cart_line[]
+  invoice_item                          invoice_item[]
+  coupon                                coupon?                             @relation(fields: [coupon_id], references: [id])
+  address                               address?                            @relation(fields: [address_id], references: [id])
+}
+
+model subscription_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model subscription_plan_product_variant {
+  id                      BigInt               @id @default(autoincrement())
+  subscription_id         BigInt
+  plan_product_variant_id BigInt
+  quantity                Int
+  extra                   Json?                @db.Json
+  deleted                 Boolean              @default(false)
+  actor                   BigInt?
+  plan_product_variant    plan_product_variant @relation(fields: [plan_product_variant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "subs_plan_product_variant_fk")
+  subscription            subscription         @relation(fields: [subscription_id], references: [id], onUpdate: NoAction, map: "subscription_product_subscription_id_foreign")
+}
+
+model subscription_plan_product_variant_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model order {
+  id                 BigInt               @id @default(autoincrement())
+  user_id            BigInt
+  currency           String               @db.VarChar(10)
+  shipping_address   BigInt
+  company_id         BigInt
+  total_discount     Float?
+  total_price        Float
+  status             order_status         @default(PENDING)
+  created_at         DateTime             @default(now())
+  foreign_ids        Json?                @db.Json
+  extra              Json?                @db.Json
+  deleted            Boolean              @default(false)
+  actor              BigInt?
+  user               user                 @relation(fields: [user_id], references: [id])
+  company            company              @relation(fields: [company_id], references: [id])
+  address            address              @relation(fields: [shipping_address], references: [id])
+  order_line         order_line[]
+  order_subscription order_subscription[]
+  payout             payout[]
+}
+
+model order_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model order_line {
+  id                 BigInt           @id @default(autoincrement())
+  description        String?          @db.VarChar(255)
+  part_of            String?          @db.VarChar(255)
+  order_id           BigInt
+  product_variant_id BigInt?
+  coupon             String?
+  type               order_line_type  @default(PRODUCT)
+  quantity           Int
+  line_price         Float
+  line_discount      Float?
+  foreign_ids        Json?            @db.Json
+  extra              Json?            @db.Json
+  deleted            Boolean          @default(false)
+  actor              BigInt?
+  order              order            @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "order_line_order_id_foreign")
+  product_variant    product_variant? @relation(fields: [product_variant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "order_line_product_variant_id_foreign")
+}
+
+model order_line_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model order_subscription {
+  id              BigInt       @id @default(autoincrement())
+  order_id        BigInt
+  subscription_id BigInt
+  extra           Json?        @db.Json
+  deleted         Boolean      @default(false)
+  actor           BigInt?
+  order           order        @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "order_subscription_order_id_foreign")
+  subscription    subscription @relation(fields: [subscription_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "order_subscription_subscription_id_foreign")
+}
+
+model order_subscription_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model cart {
+  id        Int         @id @default(autoincrement())
+  user_id   BigInt
+  user      user        @relation(fields: [user_id], references: [id])
+  type      cart_type   @default(MAIN)
+  extra     Json?       @db.Json
+  deleted   Boolean     @default(false)
+  actor     BigInt?
+  cart_line cart_line[]
+}
+
+model cart_log {
+  id          Int      @id() @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model cart_line {
+  id              Int          @id @default(autoincrement())
+  cart_id         Int
+  subscription_id BigInt
+  extra           Json?        @db.Json
+  actor           BigInt?
+  deleted         Boolean      @default(false)
+  subscription    subscription @relation(fields: [subscription_id], references: [id])
+  cart            cart         @relation(fields: [cart_id], references: [id])
+}
+
+model cart_line_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model coupon {
+  id             Int                  @id @default(autoincrement())
+  company_id     BigInt
+  name           String
+  amount_off     Float?
+  percent_off    Float?
+  currency       String?              @db.VarChar(10)
+  duration       coupon_duration_type @default(ONCE)
+  renew_duration Int?
+  applies_to     Json?
+  active         Boolean              @default(true)
+  extra          Json?                @db.Json
+  deleted        Boolean              @default(false)
+  actor          BigInt?
+  subscription   subscription[]
+  company        company              @relation(fields: [company_id], references: [id])
+
+  @@index([name], map: "coupon_index")
+}
+
+model coupon_log {
+  id          Int      @id @default(autoincrement())
+  record      Json
+  action      String
+  actor       BigInt?
+  action_time DateTime @map("action_time")
+}
+
+model trial {
+  id      BigInt @id @default(autoincrement())
+  plan_id BigInt
+  user_id BigInt
+  total   Int    @default(0)
+  plan    plan   @relation(fields: [plan_id], references: [id], onUpdate: NoAction, map: "trial_plan_id_foreign")
+  user    user   @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "trial_user_id_foreign")
+  @@unique([plan_id, user_id], map: "trial_plan_id_user_id_unique")
+}
+
+model product_sync {
+  company_id BigInt
+  foreign_id String
+  object     Json
+  @@unique([company_id, foreign_id], map: "sync_company_id_foreign_id_unique")
+}

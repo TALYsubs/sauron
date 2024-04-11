@@ -1,0 +1,105 @@
+input UserInput {
+  first_name: String!
+  last_name: String!
+  email: String!
+  phone_country_code: String
+  phone_number: String
+  gender: String
+  birthday: DateTime
+  phone_verified_at: DateTime
+  employer_id: BigInt
+  job_role: String
+  policy_agreement: Boolean
+  marketing_consent: Boolean
+  media_profile: String
+}
+
+input UserUpdateInput {
+  first_name: String
+  last_name: String
+  email: String
+  phone_country_code: String
+  phone_number: String
+  gender: String
+  birthday: DateTime
+  phone_verified_at: DateTime
+  employer_id: BigInt
+  job_role: String
+  policy_agreement: Boolean
+  marketing_consent: Boolean
+  media_profile: String
+}
+
+type User @key(fields: "id") @cacheControl(maxAge: 240) {
+  id: BigInt!
+  first_name: String!
+  last_name: String!
+  email: String!
+  email_verified_at: DateTime
+  phone_country_code: String
+  phone_number: String
+  gender: String
+  birthday: DateTime
+  phone_verified_at: DateTime
+  employer_id: BigInt
+  job_role: String
+  policy_agreement: Boolean
+  marketing_consent: Boolean
+  foreign_ids: JSON
+  media_profile: SignedUrl
+  addresses: [Address]
+  company: Company
+  cart: Cart
+}
+
+type Cart @key(fields: "user_id") {
+  user_id: BigInt
+}
+
+type Company @key(fields: "id") @shareable @cacheControl(maxAge: 240) {
+  id: BigInt!
+}
+
+type PaymentMethod @key(fields: "id") @cacheControl(maxAge: 240) {
+  id: ID!
+  userId: Int!
+  paymentType: String
+  cardBrand: String
+  cardLastFour: String
+  expMonth: Int
+  expYear: Int
+  paymentMethodId: String
+  isDefault: Boolean
+  deletedAt: String
+  createdAt: String
+  updatedAt: String
+}
+
+type MessageKlavyio {
+  message: String
+  error: String
+  success: Boolean
+}
+
+input KlavyioInput {
+  email: String!
+  source: String!
+}
+
+type Verify {
+  success: Boolean
+  message: String
+}
+
+type Query {
+  getUser(id: Int, email: String): User @cacheControl(maxAge: 240)
+  getUserList: [User] @cacheControl(maxAge: 240)
+  verify(email: String!): Verify
+}
+
+type Mutation {
+  createUser(input: UserInput!): User
+  updateUser(id: BigInt!, input: UserUpdateInput!): User
+  deleteUser(id: BigInt!): User
+  subscribeToKlavyio(input: KlavyioInput!): MessageKlavyio
+}

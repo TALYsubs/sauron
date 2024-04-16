@@ -1,0 +1,263 @@
+type Plan @key(fields: "id") @cacheControl(maxAge: 300) @shareable {
+  id: BigInt!
+  company_id: BigInt
+  slug: String
+  title: String
+  description: String
+  delivery_details: String
+  allow_delivery_preference: Boolean
+  media_cover: PlanMediaCoverDefinition @cacheControl(maxAge: 300)
+  terms: String
+  voucher: Boolean
+  recurring: JSON
+  duration_value: Int
+  duration_type: duration_type
+  plan_type: plan_type
+  pricing_type: pricing_type
+  status: plan_status
+  tag: JSON
+  category: Category @cacheControl(maxAge: 300)
+  products: [PlanProductVariant] @cacheControl(maxAge: 300)
+  features: [PlanFeature] @cacheControl(maxAge: 300)
+  prices: [PlanPrice] @cacheControl(maxAge: 300)
+  company: Company @cacheControl(maxAge: 300)
+  recurrent_discount_percent: Float
+  allow_once_payment: Boolean
+  user_sales_limit: Int
+  total_sales_limit: Int
+  sold_out: Boolean
+  total_sales: Int
+  user_purchases: Int
+  bundle_definition: [BundleDefinitionGroup] @cacheControl(maxAge: 300)
+}
+
+type Company @key(fields: "id") @shareable {
+  id: BigInt!
+  name: String
+  slug: String
+  media: [CompanyMedia]
+}
+
+enum role_company_media_type {
+  LOGO
+  COVER
+  AVATAR
+  VIDEO
+}
+
+type CompanyMedia @key(fields: "id") @shareable {
+  id: BigInt
+  media: SignedUrl
+  type: role_company_media_type
+}
+
+type ProductVariant @key(fields: "id") @shareable {
+  id: BigInt!
+  in_stock: Boolean
+}
+
+union SectionItem = Plan | Company
+
+type PlanSection @cacheControl(maxAge: 300) {
+  title: String!
+  type: String!
+  items: [SectionItem]
+}
+
+type BundleDefinitionGroup {
+  name: String
+  quantity: Int
+  products: [ProductVariant]
+}
+
+type Doc {
+  page: Int!
+  size: Int!
+  totalPages: Int!
+}
+
+type PlanSectionListResponse @cacheControl(maxAge: 300) {
+  sections: [PlanSection!]!
+  doc: Doc!
+}
+
+type Workflow {
+  data: JSON
+}
+
+input QueryFilters {
+  recommended: Boolean!
+  top_rated: Boolean!
+  bcorp: Boolean!
+}
+
+enum product_selection {
+  FIXED
+  DYNAMIC
+}
+
+enum pricing_type {
+  FIXED
+  DYNAMIC
+}
+
+enum duration_type {
+  DAY
+  WEEK
+  MONTH
+  YEAR
+}
+
+enum plan_status {
+  DRAFT
+  ACTIVE
+  INACTIVE
+}
+
+enum plan_type {
+  BUILD_A_BOX
+  BUNDLE
+  TRIAL
+  START_REFILL
+  STANDARD
+}
+
+type Query {
+  getPlan(id: BigInt, slug: String): Plan
+  getPlanList(
+    companyId: BigInt
+    status: plan_status
+    planIds: [BigInt]
+    userLocation: String
+  ): [Plan]
+  getPlanSectionList(
+    page: Int!
+    size: Int!
+    userLocation: String
+    filters: QueryFilters!
+    categories: [BigInt]
+  ): PlanSectionListResponse!
+  getPlanListForUser(userId: BigInt!): [Plan]
+  getWorkflowData: Workflow
+}
+
+input CreatePlanInput {
+  title: String!
+  company_id: BigInt!
+  foreign_ids: JSON
+  description: String
+  delivery_details: String
+  terms: String
+  allow_delivery_preference: Boolean
+  voucher: Boolean
+  recurring: JSON
+  duration_value: Int
+  duration_type: duration_type
+  category_id: BigInt!
+  media_cover: PlanMediaInputDefinition!
+  status: plan_status
+  tag: JSON
+  recurrent_discount_percent: Float
+  allow_once_payment: Boolean
+  pricing_type: pricing_type
+  plan_type: plan_type!
+  bundle_definition: AddBundleDefinitionFeatureInput
+  plan_price: [PriceInput]
+  user_sales_limit: Int
+  total_sales_limit: Int
+  products: [PlanProductArgInput!]!
+}
+
+input CreatePlanBulkInput {
+  company_id: BigInt!
+  delivery_details: String
+  allow_delivery_preference: Boolean
+  recurring: JSON
+  category_id: BigInt!
+  recurrent_discount_percent: Float
+  allow_once_payment: Boolean
+  plan_type: plan_type!
+  products: [PlanProductArgInput!]!
+  user_sales_limit: Int
+  total_sales_limit: Int
+  status: plan_status
+}
+
+input PriceInput {
+  id: BigInt
+  country: String!
+  currency: String!
+  amount: Float!
+}
+
+input PlanProductArgInput {
+  id: BigInt!
+  quantity: Int!
+}
+
+input UpdatePlanInput {
+  id: BigInt!
+  title: String!
+  company_id: BigInt!
+  foreign_ids: JSON
+  description: String
+  delivery_details: String
+  terms: String
+  allow_delivery_preference: Boolean
+  voucher: Boolean
+  recurring: JSON
+  duration_value: Int
+  duration_type: duration_type
+  category_id: BigInt
+  media_cover: PlanMediaInputDefinition
+  status: plan_status
+  tag: JSON
+  recurrent_discount_percent: Float
+  allow_once_payment: Boolean
+  pricing_type: pricing_type
+  plan_type: plan_type!
+  bundle_definition: AddBundleDefinitionFeatureInput
+  plan_price: [PriceInput]
+  user_sales_limit: Int
+  total_sales_limit: Int
+  products: [PlanProductArgInput!]
+}
+
+type ErrorResponse {
+  id: BigInt
+  error: String
+}
+
+type MessagePlanPriceUpdate {
+  success: Boolean
+  errors: [ErrorResponse]
+}
+
+type Mutation {
+  createPlan(input: CreatePlanInput): Plan @auth(groups: ["VENDOR", "ADMIN", "TP"])
+  createPlanBulk(input: CreatePlanBulkInput): [Plan] @auth(groups: ["VENDOR", "ADMIN", "TP"])
+  updatePlan(input: UpdatePlanInput): Plan @auth(groups: ["VENDOR", "ADMIN", "TP"])
+  updatePlanPrices: MessagePlanPriceUpdate @auth(groups: ["ADMIN"])
+  deletePlan(id: BigInt!): Plan @auth(groups: ["VENDOR", "ADMIN", "TP"])
+}
+
+type PlanMediaCoverDefinition {
+  key: String
+  url: SignedUrl
+  fit: PlanMediaCoverFit
+}
+
+enum PlanMediaCoverFit {
+  CONTAIN
+  COVER
+}
+
+input PlanMediaInputDefinition {
+  key: String
+  fit: PlanMediaCoverFit
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}

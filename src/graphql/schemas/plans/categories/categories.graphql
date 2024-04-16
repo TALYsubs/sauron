@@ -1,0 +1,22 @@
+type Category @key(fields: "id") {
+  id: BigInt!
+  name: String!
+  slug: String!
+  icon: String!
+}
+
+type Query {
+  getCategory(id: BigInt, slug: String): Category
+  getCategoryList: [Category]
+}
+
+type Mutation {
+  createCategory(name: String!, slug: String!, icon: String!): Category
+  updateCategory(id: BigInt!, name: String, slug: String, icon: String): Category
+  deleteCategory(id: BigInt!): Category
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}

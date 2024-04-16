@@ -144,7 +144,7 @@ const updateUser = async (parent: any, { id, input }: any, context: any, info: a
       where,
       data: {
         ...input,
-        actor: actor.id
+        actor: actor?.id
       }
     });
     return updatedUser;

@@ -1,0 +1,37 @@
+type PlanProductVariantPrice @key(fields: "id") {
+  id: BigInt!
+  plan_product_variant_id: BigInt!
+  country: String
+  currency: String
+  amount: Float
+  amount_with_discount: Float
+}
+
+type Query {
+  getPlanProductVariantPrice(id: BigInt!): PlanProductVariantPrice
+  getPlanProductVariantPriceList: [PlanProductVariantPrice]
+}
+
+type Mutation {
+  createPlanProductVariantPrice(
+    plan_product_variant_id: BigInt!
+    country: String!
+    currency: String!
+    amount: Float!
+  ): PlanProductVariantPrice @auth(groups: ["VENDOR", "ADMIN", "TP"])
+
+  updatePlanProductVariantPrice(
+    id: BigInt!
+    country: String!
+    currency: String!
+    amount: Float!
+  ): PlanProductVariantPrice @auth(groups: ["VENDOR", "ADMIN", "TP"])
+
+  deletePlanProductVariantPrice(id: BigInt!): PlanProductVariantPrice
+    @auth(groups: ["VENDOR", "ADMIN", "TP"])
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}

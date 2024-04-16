@@ -44,12 +44,21 @@ const init = async (): Promise<FastifyInstance> => {
         if (regApollo) {
             await regApollo.start();
 
-            const contextFunction: ApolloFastifyContextFunction<Context> = async (request, reply) => ({
-                authorization: request.headers.authorization
-                    ? await isAuthorized(request.headers.authorization)
-                    : null,
+            const contextFunction: ApolloFastifyContextFunction<Context> = async (request, reply) => {
+                if (request.headers.authorization) {
+                    const authorization = await isAuthorized(request.headers.authorization as string);
+                    const { email, profile } = await authorization;
+                    return ({
+                        actor: email,
+                        group: profile,
+                    })
+                } else {
+                    return ({
+                        authorization: ""
+                    })
 
-            });
+                }
+            };
 
 
 

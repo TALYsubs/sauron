@@ -6,7 +6,7 @@ import { getActor, isActorAuthorised, isActorAuthorisedAddress } from '../../../
 // Queries
 const getAddress = async (parent: any, { id }: any, context: any, info: any) => {
   try {
-    const { id: actorId } = await getActor(context.actor);
+    const { id: actorId } = await getActor(context.actor) || { id: null };
     let where: any = { id };
     if (!['VENDOR', 'ADMIN'].includes(context.group)) {
       where = { ...where, user_id: actorId };
@@ -21,6 +21,8 @@ const getAddress = async (parent: any, { id }: any, context: any, info: any) => 
 
 const getAddressList = async (parent: any, args: any, context: any, info: any) => {
   try {
+
+    console.log("context.group", context);
     if (context.group !== 'ADMIN') return null; // VENDOR?
     const allAddresss = await prisma.address.findMany();
 
@@ -34,7 +36,7 @@ const getAddressList = async (parent: any, args: any, context: any, info: any) =
 
 const createAddress = async (parent: any, data: any, context: any, info: any) => {
   try {
-    const actor = await getActor(context.actor);
+    const actor = await getActor(context.actor) || { id: null };
     isActorAuthorised(context.group, actor, data.user_id);
 
     const newAddress = await prisma.address.create({
@@ -54,7 +56,7 @@ const createAddress = async (parent: any, data: any, context: any, info: any) =>
 
 const updateAddress = async (parent: any, { id, ...data }: any, context: any, info: any) => {
   try {
-    const actor = await getActor(context.actor);
+    const actor = await getActor(context.actor) || { id: null };
     await isActorAuthorisedAddress(context.group, actor, id);
 
     const updatedAddress = await prisma.address.update({
@@ -84,7 +86,7 @@ const deleteAddress = async (parent: any, { id }: any, context: any, info: any) 
       where: {
         id
       }
-    });
+    }) as any;
     if (deletedAddress.address_type === 'DELIVERY') {
       checkAvailability4Address(deletedAddress.user_id);
     }

@@ -11,7 +11,7 @@ export const checkAvailability4Address = async (userId: number) => {
   // Retrieve the delivery address of that user
   const address = await prisma.address.findFirst({
     where: {
-      userId,
+      user_id: userId,
       type: 'DELIVERY',
       is_default: true
     }

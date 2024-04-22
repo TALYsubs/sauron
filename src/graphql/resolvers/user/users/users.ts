@@ -1,7 +1,7 @@
 import { GraphQLError } from 'graphql';
-import { prisma } from '../../../services/prisma';
+import { prisma } from '../../../../services/prisma';
 import fetch from 'node-fetch';
-import { getActor, isActorAuthorised } from '../../../helpers/auth';
+import { getActor, isActorAuthorised } from '../../../../helpers/auth';
 
 const verify = async (parent: any, { email }: any, context: any, info: any) => {
   const user = await prisma.user.findUnique({

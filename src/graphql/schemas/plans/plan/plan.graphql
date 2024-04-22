@@ -31,26 +31,6 @@ type Plan @key(fields: "id") @cacheControl(maxAge: 300) @shareable {
   bundle_definition: [BundleDefinitionGroup] @cacheControl(maxAge: 300)
 }
 
-type Company @key(fields: "id") @shareable {
-  id: BigInt!
-  name: String
-  slug: String
-  media: [CompanyMedia]
-}
-
-enum role_company_media_type {
-  LOGO
-  COVER
-  AVATAR
-  VIDEO
-}
-
-type CompanyMedia @key(fields: "id") @shareable {
-  id: BigInt
-  media: SignedUrl
-  type: role_company_media_type
-}
-
 type ProductVariant @key(fields: "id") @shareable {
   id: BigInt!
   in_stock: Boolean
@@ -234,9 +214,12 @@ type MessagePlanPriceUpdate {
 }
 
 type Mutation {
-  createPlan(input: CreatePlanInput): Plan @auth(groups: ["VENDOR", "ADMIN", "TP"])
-  createPlanBulk(input: CreatePlanBulkInput): [Plan] @auth(groups: ["VENDOR", "ADMIN", "TP"])
-  updatePlan(input: UpdatePlanInput): Plan @auth(groups: ["VENDOR", "ADMIN", "TP"])
+  createPlan(input: CreatePlanInput): Plan
+    @auth(groups: ["VENDOR", "ADMIN", "TP"])
+  createPlanBulk(input: CreatePlanBulkInput): [Plan]
+    @auth(groups: ["VENDOR", "ADMIN", "TP"])
+  updatePlan(input: UpdatePlanInput): Plan
+    @auth(groups: ["VENDOR", "ADMIN", "TP"])
   updatePlanPrices: MessagePlanPriceUpdate @auth(groups: ["ADMIN"])
   deletePlan(id: BigInt!): Plan @auth(groups: ["VENDOR", "ADMIN", "TP"])
 }

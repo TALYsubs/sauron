@@ -8,6 +8,17 @@ generator client {
   binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x", "rhel-openssl-3.0.x", "linux-arm64-openssl-1.0.x", "rhel-openssl-1.0.x"]
 }
 
+generator kysely {
+  provider = "prisma-kysely"
+
+  // Optionally provide a destination directory for the generated file
+  // and a filename of your choice
+  output       = "../src/services/db"
+  fileName     = "types.ts"
+  // Optionally generate runtime enums to a separate file
+  enumFileName = "enums.ts"
+}
+
 enum role_company_media_type {
   LOGO
   COVER
@@ -900,6 +911,7 @@ model trial {
   total   Int    @default(0)
   plan    plan   @relation(fields: [plan_id], references: [id], onUpdate: NoAction, map: "trial_plan_id_foreign")
   user    user   @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "trial_user_id_foreign")
+
   @@unique([plan_id, user_id], map: "trial_plan_id_user_id_unique")
 }
 
@@ -907,5 +919,6 @@ model product_sync {
   company_id BigInt
   foreign_id String
   object     Json
+
   @@unique([company_id, foreign_id], map: "sync_company_id_foreign_id_unique")
 }

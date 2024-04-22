@@ -1,0 +1,47 @@
+{
+  "standard_box": {
+    "title": "Standard Box",
+    "type": "STANDARD",
+    "description": {
+      "vendor": "Create a subscription box for a single product",
+      "consumer": ""
+    },
+    "workflow": ["products_fixed", "price_combined"]
+  },
+  "trial_box": {
+    "title": "Trial Box",
+    "type": "TRIAL",
+    "description": {
+      "vendor": "Give your customers the option to try a standard box for a discounted price",
+      "consumer": "Try before you buy"
+    },
+    "workflow": ["products_fixed", "price_singular"]
+  },
+  "build_a_box": {
+    "title": "Build-a-box",
+    "type": "BUILD_A_BOX",
+    "description": {
+      "vendor": "Give your customers the option to build their own box.",
+      "consumer": "Make it yours. Add as many items as you want."
+    },
+    "workflow": ["products_variable", "price_combined"]
+  },
+  "bundle": {
+    "title": "Bundle",
+    "type": "BUNDLE",
+    "description": {
+      "vendor": "Create a subscription box for a predefined set of products.",
+      "consumer": "Make it yours. Select the products you want in this box."
+    },
+    "workflow": ["products_group", "overwrite_product_prices", "price_combined"]
+  },
+  "starter_refill": {
+    "title": "Starter and refill box",
+    "type": "START_REFILL",
+    "description": {
+      "vendor": "Create a subscription that will have a something unique in the first order and then receives refills after",
+      "consumer": ""
+    },
+    "workflow": ["products_combined", "price_combined"]
+  }
+}

@@ -15,7 +15,9 @@
     "paths": {
       "@resolvers/*": ["src/graphql/resolvers/*"],
       "@schemas/*": ["src/graphql/schemas/*"],
-      "@services/*":["src/services/*"]
+      "@services/*":["src/services/*"],
+      "@types/*": ["src/types/*"],
+      "@helpers/*": ["src/helpers/*"]
     } /* Specify a set of entries that re-map imports to additional lookup locations. */,
     "types": ["node"],
     "typeRoots": ["./node_modules/@types", "./src/types"]

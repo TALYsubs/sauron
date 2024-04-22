@@ -1,7 +1,7 @@
 import { GraphQLError } from 'graphql';
-import { prisma } from '../../../services/prisma';
-import { checkAvailability4Address } from '../../../availability/availability';
-import { getActor, isActorAuthorised, isActorAuthorisedAddress } from '../../../helpers/auth';
+import { prisma } from '../../../../services/prisma';
+import { checkAvailability4Address } from '../../../../availability/availability';
+import { getActor, isActorAuthorised, isActorAuthorisedAddress } from '../../../../helpers/auth';
 
 // Queries
 const getAddress = async (parent: any, { id }: any, context: any, info: any) => {

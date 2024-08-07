@@ -1,0 +1,6 @@
+[submodule "packages/user"]
+	path = packages/user
+	url = git@github.com:TALYsubs/mcr-user-management.git
+[submodule "packages/company"]
+	path = packages/company
+	url = git@github.com:TALYsubs/mcr-company.git

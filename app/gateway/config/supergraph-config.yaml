@@ -1,0 +1,34 @@
+federation_version: 2
+subgraphs:
+  user:
+    routing_url: https://jmf033wb80.execute-api.eu-west-2.amazonaws.com/staging/usr/graphql
+    schema:
+      subgraph_url: https://jmf033wb80.execute-api.eu-west-2.amazonaws.com/staging/usr/graphql
+  company:
+    routing_url: https://jmf033wb80.execute-api.eu-west-2.amazonaws.com/staging/company/graphql
+    schema:
+      subgraph_url: https://jmf033wb80.execute-api.eu-west-2.amazonaws.com/staging/company/graphql
+  product:
+    routing_url: https://jmf033wb80.execute-api.eu-west-2.amazonaws.com/staging/product/graphql
+    schema:
+      subgraph_url: https://jmf033wb80.execute-api.eu-west-2.amazonaws.com/staging/product/graphql
+  plan:
+    routing_url: https://jmf033wb80.execute-api.eu-west-2.amazonaws.com/staging/plan/graphql
+    schema:
+      subgraph_url: https://jmf033wb80.execute-api.eu-west-2.amazonaws.com/staging/plan/graphql
+  subscription:
+    routing_url: https://jmf033wb80.execute-api.eu-west-2.amazonaws.com/staging/subscription/graphql
+    schema:
+      subgraph_url: https://jmf033wb80.execute-api.eu-west-2.amazonaws.com/staging/subscription/graphql
+  payment:
+    routing_url: https://jmf033wb80.execute-api.eu-west-2.amazonaws.com/staging/pmt/graphql
+    schema:
+      subgraph_url: https://jmf033wb80.execute-api.eu-west-2.amazonaws.com/staging/pmt/graphql
+  ECommerce:
+    routing_url: https://jmf033wb80.execute-api.eu-west-2.amazonaws.com/staging/ecomm/graphql
+    schema:
+      subgraph_url: https://jmf033wb80.execute-api.eu-west-2.amazonaws.com/staging/ecomm/graphql
+  upload:
+    routing_url: https://jmf033wb80.execute-api.eu-west-2.amazonaws.com/staging/upload/graphql
+    schema:
+      subgraph_url: https://jmf033wb80.execute-api.eu-west-2.amazonaws.com/staging/upload/graphql

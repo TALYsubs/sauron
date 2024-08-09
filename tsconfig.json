@@ -1,33 +1,20 @@
 {
   "compilerOptions": {
-    "target": "ESNext" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
-    "module": "commonjs" /* Specify what module code is generated. */,
-    "outDir": "./build" /* Specify an output folder for all emitted files. */,
-    "isolatedModules": false,
-    "baseUrl": "." /* Specify the base directory to resolve non-relative module names. */,
-    "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
-    "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
-    "strict": true /* Enable all strict type-checking options. */,
-    "skipLibCheck": true /* Skip type checking all .d.ts files. */,
-    "moduleResolution": "node" /* Specify how TypeScript looks up a file from a given module specifier. */,
-    "noImplicitAny": false,
-    "resolveJsonModule": true,
+    "target": "ES2020",
+    "module": "CommonJS",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "./",
     "paths": {
-      "@resolvers/*": ["src/graphql/resolvers/*"],
-      "@schemas/*": ["src/graphql/schemas/*"],
-      "@services/*":["src/services/*"],
-      "@types/*": ["src/types/*"],
-      "@helpers/*": ["src/helpers/*"]
-    } /* Specify a set of entries that re-map imports to additional lookup locations. */,
-    "types": ["node"],
-    "typeRoots": ["./node_modules/@types", "./src/types"]
+      "@company/*": ["app/company/src/*"],
+      "@user/*": ["app/user/src/*"],
+      "@federation/*": ["app/taly-federation/src/*"]
+    }
   },
-  "include": ["./src/**/*ts", "./src/**/*.d.ts"],
-  "exclude": ["node_modules",
-  "./node_modules",
-  "./src/services/__mocks__/*.ts",
-  "./src/test/*.ts",
-  "./src/test",
-  "./node_modules/*",
-  "./node_modules/@types/node/index.d.ts", "build"]
+  "include": [
+    "app/**/*",
+    "packages/**/*"
+  ]
 }

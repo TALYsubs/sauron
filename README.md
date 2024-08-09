@@ -25,3 +25,25 @@ To install bun:
 ```bash
 curl -fsSL https://bun.sh/install | bash
 ```
+
+Project tree:
+
+```
+.
+├── README.md
+├── apps
+│   └── federation
+├── bun.lockb
+├── package-lock.json
+├── package.json
+├── packages
+├── subgraphs
+│   ├── company
+│   ├── ecommerce
+│   ├── payment
+│   ├── plan
+│   ├── product
+│   ├── subscription
+│   └── user
+└── turbo.json
+```

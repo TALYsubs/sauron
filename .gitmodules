@@ -1,0 +1,24 @@
+[submodule "apps/federation"]
+	path = apps/federation
+	url = git@github.com:TALYsubs/taly-federation.git
+[submodule "subgraphs/user"]
+	path = subgraphs/user
+	url = git@github.com:TALYsubs/mcr-user-management.git
+[submodule "subgraphs/company"]
+	path = subgraphs/company
+	url = git@github.com:TALYsubs/mcr-company.git
+[submodule "subgraphs/ecommerce"]
+	path = subgraphs/ecommerce
+	url = git@github.com:TALYsubs/mcr-ecommerce.git
+[submodule "subgraphs/payment"]
+	path = subgraphs/payment
+	url = git@github.com:TALYsubs/mcr-payment.git
+[submodule "subgraphs/plan"]
+	path = subgraphs/plan
+	url = git@github.com:TALYsubs/mcr-plan.git
+[submodule "subgraphs/product"]
+	path = subgraphs/product
+	url = git@github.com:TALYsubs/mcr-product.git
+[submodule "subgraphs/subscription"]
+	path = subgraphs/subscription
+	url = git@github.com:TALYsubs/mcr-subscription.git

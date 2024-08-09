@@ -2,3 +2,9 @@
 	path = app/taly-federation
 	url = git@github.com:TALYsubs/taly-federation.git
 
+[submodule "app/company"]
+	path = app/company
+	url = git@github.com:TALYsubs/mcr-company.git
+[submodule "app/user"]
+	path = app/user
+	url = git@github.com:TALYsubs/mcr-user-management.git

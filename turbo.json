@@ -1,19 +1,33 @@
 {
-    "$schema": "https://turbo.build/schema.json",
-    "ui": "tui",
-    "tasks": {
-      "build": {
-        "dependsOn": ["^build"],
-        "inputs": ["$TURBO_DEFAULT$", ".env*"],
-        "outputs": [".next/**", "!.next/cache/**"]
-      },
-      "lint": {
-        "dependsOn": ["^lint"]
-      },
-      "dev": {
-        "cache": false,
-        "persistent": true
-      }
+  "$schema": "https://turborepo.org/schema.json",
+  "tasks": {
+    "update:submodules": {
+      "outputs": [],
+      "cache": false
+    },
+    "install": {
+      "outputs": ["node_modules/**", "**/node_modules/**"],
+      "dependsOn": ["update:submodules"],
+      "cache": false
+    },
+    "build": {
+      "outputs": ["dist/**"],
+      "dependsOn": ["install"],
+      "cache": false
+    },
+    "dev": {
+      "cache": false,
+      "dependsOn": ["build"],
+      "persistent": true
+    },
+    "update-sdl": {
+      "cache": false,
+      "dependsOn": ["build"]
+    },
+    "federation": {
+      "cache": false,
+      "dependsOn": ["update-sdl"],
+      "persistent": true
     }
   }
-  
+}

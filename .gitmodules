@@ -4,3 +4,6 @@
 [submodule "packages/company"]
 	path = packages/company
 	url = git@github.com:TALYsubs/mcr-company.git
+[submodule "app/taly-federation"]
+	path = app/taly-federation
+	url = git@github.com:TALYsubs/taly-federation.git

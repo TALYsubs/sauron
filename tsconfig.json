@@ -8,8 +8,8 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": "./",
     "paths": {
-      "@company/*": ["packages/company/src/*"],
-      "@user/*": ["packages/user/src/*"],
+      "@company/*": ["app/company/src/*"],
+      "@user/*": ["app/user/src/*"],
       "@federation/*": ["app/taly-federation/src/*"]
     }
   },

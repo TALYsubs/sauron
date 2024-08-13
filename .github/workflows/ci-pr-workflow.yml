@@ -1,0 +1,30 @@
+name: Notify Slack on PR
+
+on:
+  pull_request:
+    types: [opened]  # This ensures the action runs only when a PR is opened
+
+
+env:
+    PR_URL: ${{ github.event.pull_request.html_url }}    
+    PR_TITLE: ${{ github.event.pull_request.title }}
+    PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+    PR_AVATAR: ${{ github.event.pull_request.user.avatar_url }}
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Slack Notification
+        if: success()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.CICD_PR_WEBHOOK_URL }}
+          SLACK_COLOR: ${{ job.status }}  # or a specific color like 'good' or '#ff00ff'
+          SLACK_ICON: ${{ env.PR_AVATAR }}
+          SLACK_TITLE: '*${{ env.PR_TITLE }}*'
+          SLACK_MESSAGE: '${{ env.PR_URL }}'
+          SLACK_USERNAME: '${{ env.PR_AUTHOR }}'

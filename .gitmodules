@@ -22,3 +22,6 @@
 [submodule "subgraphs/subscription"]
 	path = subgraphs/subscription
 	url = git@github.com:TALYsubs/mcr-subscription.git
+[submodule "packages/prisma"]
+	path = packages/prisma
+	url = git@github.com:TALYsubs/taly-prisma.git

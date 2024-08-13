@@ -15,8 +15,14 @@ This is allowed because all directories are git submodules , which means it poin
 To install:
 `npm install`
 
-To run:
+To run federation with all microservices:
 `npm run dev`
+
+To run specific subgraphs:
+
+```bash
+bun run dev:custom-federation user product payment
+```
 
 The code runs using bun.
 
